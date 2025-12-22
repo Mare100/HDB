@@ -327,7 +327,7 @@ $sql = sprintf("SELECT ".
                  "`i_tiere`.`tname`,".
                  "IFNULL(`i_tierart`.`de_lang`,`i_tiere`.`art`) AS `art`,".
                  "`i_tiere`.`art_id`,".
-                 "IFNULL(`i_tierrasse`.`de_lang`,`i_tiere`.`rasse`) AS `rasse`,".
+                 "IFNULL(`i_tierrasse`.`de_lang`,`i_tiere`.`rasse`) AS `tierrasse`,".
                  "`i_tierrasse`.`hdb_id` AS `HDB_id`,".   /* <-- HIER DER FIX */
                  "`i_tiere`.`geschlecht_id`,".
                  "`i_tiere`.`geburt`,".
@@ -400,7 +400,7 @@ $sql = sprintf("SELECT ".
 
       if (!isset($row['transponder']) || !preg_match('/^[A-Z0-9]+$/', $row['transponder'])) continue;
       if (!isset($row['geburtsland']) || !isset($CatLand[ $row['geburtsland'] ])) { if (isset($transponder)) $error .= "Geburtsland bei Transponder \"".$row['transponder']."\" fehlerhaft oder nicht gesetzt: ".$row['geburtsland']."\n"; else continue; }
-      if (!isset($row['rasse']) || trim($row['rasse']) == '') { if (isset($transponder)) $error .= "Rasse bei Transponder \"".$row['transponder']."\" fehlerhaft oder nicht gesetzt: ".$row['rasse']."\n"; else continue; }
+      //if (!isset($row['rasse']) || trim($row['rasse']) == '') { if (isset($transponder)) $error .= "Rasse bei Transponder \"".$row['transponder']."\" fehlerhaft oder nicht gesetzt: ".$row['rasse']."\n"; else continue; }
       if (!isset($row['geschlecht_id']) || !isset($CatGeschlechtTypTier[ $row['geschlecht_id'] ])) { if (isset($transponder)) $error .= "Geschlecht (geschlecht_id) bei Transponder \"".$row['transponder']."\" fehlerhaft oder nicht gesetzt: ".$row['geschlecht_id']."\n"; else continue; }
 
       if (preg_match('/^([0-9]{1,2})\.([0-9]{1,2})\.((19|20)?[0-9]{2})?$/', $row['geburt'], $tmp)) {
@@ -474,7 +474,7 @@ $sql = sprintf("SELECT ".
             $tier['TierArt'] = 1; /* Hund */
       }
       if (isset($row['tname']) && trim($row['tname']) != '') $tier['Name'] = $row['tname'];
-      $tier['TierRasse'] = $row['HDB_id'];
+     // $tier['TierRasse'] = $row['HDB_id'];
       $tier['Geschlecht'] = $CatGeschlechtTypTier[ $row['geschlecht_id'] ];
       $tier['Geburtsdatum'] = $row['geburt'];
 	  $tier['TierRasse'] = $row['HDB_id'];
@@ -612,7 +612,7 @@ $sql = sprintf("SELECT ".
           if ($data['Tier']['Name'] != $tier['Name']) $TierAenderung['Name'] = $tier['Name'];
           if ($data['Tier']['Geschlecht'] != $tier['Geschlecht']) $TierAenderung['Geschlecht'] = $tier['Geschlecht'];
           if ($data['Tier']['HeimtierausweisNr'] != $tier['HeimtierausweisNr']) $TierAenderung['HeimtierausweisNr'] = $tier['HeimtierausweisNr'];
-		  if ($data['Tier']['TierRasse'] != $tier['TierRasse']) $TierAenderung['TierRasse'] = $tier['TierRasse'];
+		 // if ($data['Tier']['TierRasse'] != $tier['TierRasse']) $TierAenderung['TierRasse'] = $tier['TierRasse'];
 		  if ($data['Tier']['TierRasse'] != $tier['TierRasse']) $TierAenderung['TierRasse'] = $tier['TierRasse'];
 		  if ($data['Tier']['TierRasse'] != $tier['TierRasse'])
     		$TierAenderung['TierRasse'] = $tier['TierRasse'];
