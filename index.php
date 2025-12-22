@@ -1,5 +1,10 @@
 <?php
 /* =========================================================
+ * HDB DEBUG MODUS
+ * ========================================================= */
+define('HDB_DEBUG', true);      // <<< AUF false SETZEN IM PRODUKTIVBETRIEB
+define('HDB_DEBUG_XML', false); // true = SOAP XML anzeigen
+/* =========================================================
  * BASIC SETTINGS
  * ========================================================= */
 ini_set('error_reporting', E_ALL & ~E_NOTICE);
@@ -9,6 +14,30 @@ header('Content-Type: text/plain; charset=utf-8');
 /* =========================================================
  * PARAMETER CHECK
  * ========================================================= */
+function hdb_debug($label, $data = null, $soapclient = null) {
+    if (!HDB_DEBUG) {
+        return;
+    }
+
+    echo "\n==================== HDB DEBUG ====================\n";
+    echo $label . "\n";
+
+    if ($data !== null) {
+        echo "\n--- DATA ---\n";
+        print_r($data);
+    }
+
+    if (HDB_DEBUG_XML && $soapclient instanceof SoapClient) {
+        echo "\n--- SOAP REQUEST ---\n";
+        echo htmlspecialchars($soapclient->__getLastRequest());
+
+        echo "\n--- SOAP RESPONSE ---\n";
+        echo htmlspecialchars($soapclient->__getLastResponse());
+    }
+
+    echo "\n===================================================\n";
+}
+
 if (!isset($_GET['transponder'])) {
     http_response_code(400);
     echo "Fehlender Parameter: transponder\n";
@@ -21,6 +50,8 @@ if (!preg_match('/^[A-Z0-9]+$/', $_GET['transponder'])) {
     echo "Ungültige Transpondernummer";
     exit;
 }
+
+
 
 $transponder = $_GET['transponder'];
 
@@ -518,6 +549,14 @@ if ($data !== false) {
         $TierAenderung->Todesdatum = $tier->Todesdatum;
     }
 
+    /* DEBUG */
+hdb_debug('Erstmeldung RESPONSE', $response, $soapclient);
+
+/* HDB-Fehler sofort sichtbar machen */
+if (!isset($response->Status) || $response->Status != 0) {
+    hdb_debug('HDB FEHLER – Erstmeldung fehlgeschlagen', $response, $soapclient);
+}
+
     /* ---------- Halter-Vergleich ---------- */
     if ($data['HalterEigentuemer']['Typ'] != $halter->Typ) {
         $HEAenderung = new stdClass();
@@ -926,6 +965,14 @@ if ($TierAenderung !== null) {
         $row['reg_id'],
         $TierAenderung
     );
+
+    hdb_debug('AenderungTier RESPONSE', $response, $soapclient);
+
+if ($response->Status != 0) {
+    hdb_debug('HDB FEHLER – AenderungTier', $response, $soapclient);
+}
+
+    
     $response_time = microtime(true) - $response_time;
 
     logfile($row['transponder'], "AenderungTier (Status: ".$response->Status.")");
@@ -1089,6 +1136,12 @@ if ($HEAenderung !== null) {
         $row['reg_id'],
         $HEAenderung
     );
+
+    hdb_debug('AenderungHE RESPONSE', $response, $soapclient);
+
+if ($response->Status != 0) {
+    hdb_debug('HDB FEHLER – AenderungHE', $response, $soapclient);
+}
     $response_time = microtime(true) - $response_time;
 
     logfile($row['transponder'], "AenderungHE (Status: ".$response->Status.")");
@@ -1223,40 +1276,54 @@ if ($HEAenderung !== null) {
 
 else {
 
-    /* SOAP-Request korrekt aufbauen */
-    $params = new stdClass();
-    $params->Tier              = $tier;
-    $params->HalterEigentuemer = $halter;
+ /* SOAP-Request korrekt aufbauen */
+$params = new stdClass();
+$params->Tier              = $tier;
+$params->HalterEigentuemer = $halter;
 
-    $response_time = microtime(true);
-    try {
-        $response = $soapclient->__soapCall('Erstmeldung', array($params));
-    } catch (SoapFault $e) {
-        $errormsg = "SOAP Fehler bei Erstmeldung (ChipCode \"".$row['transponder']."\"):\n".$e->getMessage();
-        print $errormsg;
+$response_time = microtime(true);
 
-        $sql = sprintf(
-            "INSERT INTO `i_heimtierdb_at:error`
-             SET `transponder` = '%s',
-                 `tier_id` = %d,
-                 `adr_id` = %d,
-                 `error` = '%s',
-                 `timestamp` = NOW()
-             ON DUPLICATE KEY UPDATE
-                 `error` = '%s',
-                 `timestamp` = NOW()",
-            mysql_real_escape_string($row['transponder']),
-            $row['id'],
-            $row['adr_id'],
-            mysql_real_escape_string($errormsg),
-            mysql_real_escape_string($errormsg)
-        );
-        mysql_query($sql, $conn);
-        continue;
-    }
+try {
+    $response = $soapclient->__soapCall('Erstmeldung', array($params));
+    $response_time = microtime(true) - $response_time;
+} catch (SoapFault $e) {
     $response_time = microtime(true) - $response_time;
 
-    logfile($row['transponder'], "Erstmeldung (Status: ".$response->Status.")");
+    $errormsg = "SOAP Fehler bei Erstmeldung (ChipCode \"".$row['transponder']."\"):\n".$e->getMessage();
+    print $errormsg;
+
+    $sql = sprintf(
+        "INSERT INTO `i_heimtierdb_at:error`
+         SET `transponder` = '%s',
+             `tier_id` = %d,
+             `adr_id` = %d,
+             `error` = '%s',
+             `timestamp` = NOW()
+         ON DUPLICATE KEY UPDATE
+             `error` = '%s',
+             `timestamp` = NOW()",
+        mysql_real_escape_string($row['transponder']),
+        $row['id'],
+        $row['adr_id'],
+        mysql_real_escape_string($errormsg),
+        mysql_real_escape_string($errormsg)
+    );
+    mysql_query($sql, $conn);
+    continue;
+}
+
+/* DEBUG */
+hdb_debug('Erstmeldung RESPONSE', $response, $soapclient);
+
+/* HDB-Fehler sichtbar machen */
+if (!isset($response->Status) || $response->Status != 0) {
+    hdb_debug('HDB FEHLER – Erstmeldung fehlgeschlagen', $response, $soapclient);
+}
+
+logfile($row['transponder'], "Erstmeldung (Status: ".$response->Status.")");
+
+
+    
 
     $errormsg = null;
 
@@ -1385,5 +1452,3 @@ flush();
 }
 mysql_free_result($result);
 
-print $count_insert." Datensatz/Datensätze neu gemeldet\n";
-print $count_update." Datensatz/Datensätze aktualisiert\n";
