@@ -319,56 +319,56 @@
 <pre>
 <?php
   /* Prepare sql statement */
-  $sql = sprintf("SELECT ".
-                   "SQL_CALC_FOUND_ROWS ".
-                   "`i_tiere`.`id`,".
-                   "`i_tiere`.`adr_id`,".
-                   "`i_tiere`.`transponder`,".
-                   "`i_tiere`.`tname`,".
-                   "IFNULL(`i_tierart`.`de_lang`,`i_tiere`.`art`) AS `art`,".
-                   "`i_tiere`.`art_id`,".
-                   "IFNULL(`i_tierrasse`.`de_lang`,`i_tiere`.`rasse`) AS `rasse`,".
-                   "`i_tiere`.`geschlecht_id`,".
-                   "`i_tiere`.`geburt`,".
-                   "`i_tiere`.`geburtsland`,".
-                   "`i_tiere`.`htausweis`,".
-                   "`i_tiere`.`besitz`,".
-                   "`i_tiere`.`status`,".
-                   "`i_tiere`.`status_date`,".
-                   "`i_tiere`.`hdb_uebernahme_reg_id`,".
-                   "IF(`i_tiere`.`regdatum` IS NULL OR `i_tiere`.`regdatum` = '0000-00-00',`i_tiere`.`awdatum`,`i_tiere`.`regdatum`) AS `regdatum`,".
-                   "`i_adressen`.`anrede`,".
-                   "`i_adressen`.`titel`,".
-                   "`i_adressen`.`vorname`,".
-                   "`i_adressen`.`name`,".
-                   "`i_adressen`.`gebhalter`,".
-                   "`i_adressen`.`plz`,".
-                   "`i_adressen`.`land`,".
-                   "`i_adressen`.`ort`,".
-                   "`i_adressen`.`strasse`,".
-                   "IFNULL(`i_adressen`.`telefon_priv`,`i_adressen`.`telefon_ges`) AS `telefon`,".
-                   "`i_adressen`.`telefon_mobil`,".
-                   "`i_adressen`.`fax`,".
-                   "`i_adressen`.`email`,".
-                   "`i_adressen`.`ausweisart`,".
-                   "`i_adressen`.`prausweis`,".
-                   "`i_heimtierdb_at`.`reg_id`,".
-                   "`i_heimtierdb_at`.`data`".
-                 " FROM ".
-                   "`i_tiere`".
-                   " LEFT JOIN `i_tierrasse` ON `i_tiere`.`rasse_id` = `i_tierrasse`.`id`".
-                   " LEFT JOIN `i_tierart` ON `i_tiere`.`art_id` = `i_tierart`.`id`".
-                   " LEFT JOIN `i_heimtierdb_at` ON `i_tiere`.`id` = `i_heimtierdb_at`.`tier_id` AND `i_tiere`.`adr_id` = `i_heimtierdb_at`.`adr_id`,".
-                   "`i_adressen`".
-                 " WHERE ".
-                   "`i_tiere`.`art_id` IN(1,2) AND ".
-                   "`i_tiere`.`adr_id` = `i_adressen`.`id` AND ".
-                   "`i_tiere`.`beswechsel` IS NULL AND ".
-                   "`i_adressen`.`land` = 'A'".
-                   (isset($transponder) ? " AND `i_tiere`.`transponder` = '".mysql_real_escape_string($transponder)."'" : " AND `i_tiere`.`transponder` != ALL(SELECT `transponder` FROM `i_heimtierdb_at:error`)").
-//(!isset($transponder) ? " AND `i_tiere`.`transponder` NOT IN('985100009517560','985120021111873','985100005984227','985120019403449','040098101106456','985120015529052','276098510232270','941000002742515','968000005258965','968000005456787','968000005454021','972000000445348','985100009642855','040096100126262','968000005449244','276098510246984','040096100126380','040098100207279','040096100128929','040098100221741','040100000000137','941000002081540','941000001987887','040096100129420','968000005450755','945000000658849','040097809006516','968000004396264','985120022096910','276098510281084','276098510281077','276098510281081','941000002896486','276098510281075','276098510281079','040098100255539','040097800003758','961001200022391','276098510280585','040098100260919','276098510281148','040097809006979','040098100213275','276098510281157','276098510281144','961001200020756','961001200022824','276098510281142','276094180005271','276098510281156','276098510281199','040098100259843','040097809020575','040098100290946','276098510281197','276098510281195','276098510281193','276098510291799','276098510291776','961001200033800','703096100105363','972274000002265','276098510293460','972000000137079','972000000067592','968000003434637','961001200038122','040098100258801','040100000006503','040097809046626','900096000006268','040097809046979','941000011177591','040100000010415','040097809032199','040100000006161','040097809036841')" : "").
-                 " ORDER BY ".
-                   "`i_tiere`.`id`");
+$sql = sprintf("SELECT ".
+                 "SQL_CALC_FOUND_ROWS ".
+                 "`i_tiere`.`id`,".
+                 "`i_tiere`.`adr_id`,".
+                 "`i_tiere`.`transponder`,".
+                 "`i_tiere`.`tname`,".
+                 "IFNULL(`i_tierart`.`de_lang`,`i_tiere`.`art`) AS `art`,".
+                 "`i_tiere`.`art_id`,".
+                 "IFNULL(`i_tierrasse`.`de_lang`,`i_tiere`.`rasse`) AS `rasse`,".
+                 "`i_tierrasse`.`hdb_id` AS `HDB_id`,".   /* <-- HIER DER FIX */
+                 "`i_tiere`.`geschlecht_id`,".
+                 "`i_tiere`.`geburt`,".
+                 "`i_tiere`.`geburtsland`,".
+                 "`i_tiere`.`htausweis`,".
+                 "`i_tiere`.`besitz`,".
+                 "`i_tiere`.`status`,".
+                 "`i_tiere`.`status_date`,".
+                 "`i_tiere`.`hdb_uebernahme_reg_id`,".
+                 "IF(`i_tiere`.`regdatum` IS NULL OR `i_tiere`.`regdatum` = '0000-00-00',`i_tiere`.`awdatum`,`i_tiere`.`regdatum`) AS `regdatum`,".
+                 "`i_adressen`.`anrede`,".
+                 "`i_adressen`.`titel`,".
+                 "`i_adressen`.`vorname`,".
+                 "`i_adressen`.`name`,".
+                 "`i_adressen`.`gebhalter`,".
+                 "`i_adressen`.`plz`,".
+                 "`i_adressen`.`land`,".
+                 "`i_adressen`.`ort`,".
+                 "`i_adressen`.`strasse`,".
+                 "IFNULL(`i_adressen`.`telefon_priv`,`i_adressen`.`telefon_ges`) AS `telefon`,".
+                 "`i_adressen`.`telefon_mobil`,".
+                 "`i_adressen`.`fax`,".
+                 "`i_adressen`.`email`,".
+                 "`i_adressen`.`ausweisart`,".
+                 "`i_adressen`.`prausweis`,".
+                 "`i_heimtierdb_at`.`reg_id`,".
+                 "`i_heimtierdb_at`.`data`".
+               " FROM ".
+                 "`i_tiere`".
+                 " LEFT JOIN `i_tierrasse` ON `i_tiere`.`rasse_id` = `i_tierrasse`.`id`".
+                 " LEFT JOIN `i_tierart` ON `i_tiere`.`art_id` = `i_tierart`.`id`".
+                 " LEFT JOIN `i_heimtierdb_at` ON `i_tiere`.`id` = `i_heimtierdb_at`.`tier_id` AND `i_tiere`.`adr_id` = `i_heimtierdb_at`.`adr_id`,".
+                 "`i_adressen`".
+               " WHERE ".
+                 "`i_tiere`.`art_id` IN(1,2) AND ".
+                 "`i_tiere`.`adr_id` = `i_adressen`.`id` AND ".
+                 "`i_tiere`.`beswechsel` IS NULL AND ".
+                 "`i_adressen`.`land` = 'A'".
+                 (isset($transponder) ? " AND `i_tiere`.`transponder` = '".mysql_real_escape_string($transponder)."'" : " AND `i_tiere`.`transponder` != ALL(SELECT `transponder` FROM `i_heimtierdb_at:error`)").
+               " ORDER BY ".
+                 "`i_tiere`.`id`");
   /* Execute sql statement */
   $result = mysql_query($sql, $conn) or die("SQL error in ".basename(__FILE__)." (".__LINE__."): ".$sql." (".mysql_errno()." ".mysql_error().")");
 //print $sql."\n";
@@ -474,7 +474,7 @@
             $tier['TierArt'] = 1; /* Hund */
       }
       if (isset($row['tname']) && trim($row['tname']) != '') $tier['Name'] = $row['tname'];
-      $tier['Rasse'] = $row['rasse'];
+      $tier['TierRasse'] = $row['HDB_id'];
       $tier['Geschlecht'] = $CatGeschlechtTypTier[ $row['geschlecht_id'] ];
       $tier['Geburtsdatum'] = $row['geburt'];
       $tier['Geburtsland'] = $CatLand[ $row['geburtsland'] ];
@@ -611,6 +611,8 @@
           if ($data['Tier']['Name'] != $tier['Name']) $TierAenderung['Name'] = $tier['Name'];
           if ($data['Tier']['Geschlecht'] != $tier['Geschlecht']) $TierAenderung['Geschlecht'] = $tier['Geschlecht'];
           if ($data['Tier']['HeimtierausweisNr'] != $tier['HeimtierausweisNr']) $TierAenderung['HeimtierausweisNr'] = $tier['HeimtierausweisNr'];
+		  if ($data['Tier']['TierRasse'] != $tier['TierRasse'])
+    		$TierAenderung['TierRasse'] = $tier['TierRasse'];
           if (isset($tier['Todesdatum']) && $data['Tier']['Todesdatum'] != $tier['Todesdatum']) $TierAenderung['Todesdatum'] = $tier['Todesdatum'];
 
           if ($data['HalterEigentuemer']['Typ'] != $halter['HE']['Typ']) $HEAenderung['Typ'] = $halter['HE']['Typ'];
@@ -683,6 +685,7 @@
           }
 
           if ($HEAenderung !== false) {
+			  if (empty($row['reg_id'])) continue;
               $sent ++;
               if (!isset($HEAenderung['Typ'])) $HEAenderung['Typ'] = $halter['HE']['Typ']; // Mandatory
 
@@ -777,6 +780,8 @@ print_r($HEAenderung);
                   if ($data['Tier']['Name'] != $tier['Name']) $TierAenderung['Name'] = $tier['Name'];
                   if ($data['Tier']['Geschlecht'] != $tier['Geschlecht']) $TierAenderung['Geschlecht'] = $tier['Geschlecht'];
                   if ($data['Tier']['HeimtierausweisNr'] != $tier['HeimtierausweisNr']) $TierAenderung['HeimtierausweisNr'] = $tier['HeimtierausweisNr'];
+				  if ($data['Tier']['TierRasse'] != $tier['TierRasse'])
+    				$TierAenderung['TierRasse'] = $tier['TierRasse'];
 
                   if ($data['HalterEigentuemer']['Typ'] != $halter['HE']['Typ']) $HEAenderung['Typ'] = $halter['HE']['Typ'];
                   if ($data['HalterEigentuemer']['Person']['Titel'] != $halter['HE']['Person']['Titel']) $HEAenderung['Titel'] = $halter['HE']['Person']['Titel'];
@@ -848,6 +853,7 @@ print_r($HEAenderung);
                   }
 
                   if ($HEAenderung !== false) {
+					  if (empty($row['reg_id'])) continue;
                       $sent ++;
                       if (!isset($HEAenderung['Typ'])) $HEAenderung['Typ'] = $halter['HE']['Typ']; // Mandatory
 
