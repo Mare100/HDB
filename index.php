@@ -477,6 +477,7 @@ $sql = sprintf("SELECT ".
       $tier['TierRasse'] = $row['HDB_id'];
       $tier['Geschlecht'] = $CatGeschlechtTypTier[ $row['geschlecht_id'] ];
       $tier['Geburtsdatum'] = $row['geburt'];
+	  $tier['TierRasse'] = $row['HDB_id'];
       $tier['Geburtsland'] = $CatLand[ $row['geburtsland'] ];
       if (isset($row['htausweis']) && trim($row['htausweis']) != '') $tier['HeimtierausweisNr'] = $row['htausweis'];
 
@@ -611,6 +612,8 @@ $sql = sprintf("SELECT ".
           if ($data['Tier']['Name'] != $tier['Name']) $TierAenderung['Name'] = $tier['Name'];
           if ($data['Tier']['Geschlecht'] != $tier['Geschlecht']) $TierAenderung['Geschlecht'] = $tier['Geschlecht'];
           if ($data['Tier']['HeimtierausweisNr'] != $tier['HeimtierausweisNr']) $TierAenderung['HeimtierausweisNr'] = $tier['HeimtierausweisNr'];
+		  if ($data['Tier']['TierRasse'] != $tier['TierRasse']) $TierAenderung['TierRasse'] = $tier['TierRasse'];
+		  if ($data['Tier']['TierRasse'] != $tier['TierRasse']) $TierAenderung['TierRasse'] = $tier['TierRasse'];
 		  if ($data['Tier']['TierRasse'] != $tier['TierRasse'])
     		$TierAenderung['TierRasse'] = $tier['TierRasse'];
           if (isset($tier['Todesdatum']) && $data['Tier']['Todesdatum'] != $tier['Todesdatum']) $TierAenderung['Todesdatum'] = $tier['Todesdatum'];
@@ -780,6 +783,8 @@ print_r($HEAenderung);
                   if ($data['Tier']['Name'] != $tier['Name']) $TierAenderung['Name'] = $tier['Name'];
                   if ($data['Tier']['Geschlecht'] != $tier['Geschlecht']) $TierAenderung['Geschlecht'] = $tier['Geschlecht'];
                   if ($data['Tier']['HeimtierausweisNr'] != $tier['HeimtierausweisNr']) $TierAenderung['HeimtierausweisNr'] = $tier['HeimtierausweisNr'];
+				  if ($data['Tier']['TierRasse'] != $tier['TierRasse']) $TierAenderung['TierRasse'] = $tier['TierRasse'];
+				  if ($data['Tier']['TierRasse'] != $tier['TierRasse']) $TierAenderung['TierRasse'] = $tier['TierRasse'];
 				  if ($data['Tier']['TierRasse'] != $tier['TierRasse'])
     				$TierAenderung['TierRasse'] = $tier['TierRasse'];
 
