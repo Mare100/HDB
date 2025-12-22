@@ -153,6 +153,7 @@ SELECT SQL_CALC_FOUND_ROWS
     IFNULL(i_tierart.de_lang, i_tiere.art) AS art,
     i_tiere.art_id,
     IFNULL(i_tierrasse.de_lang, i_tiere.rasse) AS rasse,
+    i_tierrasse.HDB_id AS HDB_id,
     i_tiere.geschlecht_id,
     i_tiere.geburt,
     i_tiere.geburtsland,
