@@ -4,6 +4,25 @@
  * ========================================================= */
 define('HDB_DEBUG', true);      // <<< AUF false SETZEN IM PRODUKTIVBETRIEB
 define('HDB_DEBUG_XML', false); // true = SOAP XML anzeigen
+
+$HDB_DEBUG = (isset($_GET['debug']) && $_GET['debug'] == '1');
+
+function hdb_debug($title, $response, $soapclient) {
+    global $HDB_DEBUG;
+    if (!$HDB_DEBUG) return;
+
+    echo "\n==================== ".$title." ====================\n";
+    if ($soapclient) {
+        echo "\n--- SOAP REQUEST ---\n";
+        echo htmlspecialchars($soapclient->__getLastRequest());
+        echo "\n--- SOAP RESPONSE ---\n";
+        echo htmlspecialchars($soapclient->__getLastResponse());
+    }
+    echo "\n--- PARSED RESPONSE ---\n";
+    print_r($response);
+    echo "\n====================================================\n";
+}
+
 /* =========================================================
  * BASIC SETTINGS
  * ========================================================= */
