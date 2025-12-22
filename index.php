@@ -7,6 +7,12 @@ define('HDB_DEBUG_XML', false); // true = SOAP XML anzeigen
 
 $HDB_DEBUG = (isset($_GET['debug']) && $_GET['debug'] == '1');
 
+$soapclient = new SoapClient($wsdl, array(
+    'trace' => 1,
+    'exceptions' => 1,
+    'cache_wsdl' => WSDL_CACHE_NONE
+));
+
 function hdb_debug($title, $response, $soapclient) {
     global $HDB_DEBUG;
     if (!$HDB_DEBUG) return;
