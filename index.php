@@ -1,13 +1,33 @@
 <?php
-  /* PHP settings */
-  ini_set("error_reporting", E_ALL & ~E_NOTICE);
-  ini_set("display_errors", 1);
+// SOAP WSDL Cache komplett deaktivieren (MUSS GANZ OBEN STEHEN!)
+ini_set('soap.wsdl_cache_enabled', 0);
+ini_set('soap.wsdl_cache_ttl', 0);
+ini_set('soap.wsdl_cache', 0); // <- fehlt bei dir, bitte ergänzen!
 
-  $transponder = null;
-  if (isset($_GET['transponder'])) {
-      if (!preg_match('/^[A-Z0-9]+$/', $_GET['transponder'])) die("Die Transpondernummer \"".$_GET['transponder']."\" ist ung&uuml;ltig!");
-      $transponder = $_GET['transponder'];
-  }
+// Fehleranzeige (für DEV ok)
+ini_set("error_reporting", E_ALL & ~E_NOTICE);
+ini_set("display_errors", 1);
+
+// SoapClient erzeugen
+$soapclient = new SoapClient($wsdl, [
+    'trace'        => true,
+    'exceptions'   => true,
+    'cache_wsdl'   => WSDL_CACHE_NONE,
+    'soap_version' => SOAP_1_1 // oder SOAP_1_2 je nach Empfänger
+]);
+
+// Transponder prüfen
+$transponder = null;
+if (isset($_GET['transponder'])) {
+    if (!preg_match('/^[A-Z0-9]+$/', $_GET['transponder'])) {
+        die(
+            'Die Transpondernummer "' .
+            htmlspecialchars($_GET['transponder'], ENT_QUOTES, 'UTF-8') .
+            '" ist ungültig!'
+        );
+    }
+    $transponder = $_GET['transponder'];
+}
 
   /* Declaration */
   $CatGeschlechtTyp = array(
