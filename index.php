@@ -4,37 +4,37 @@
  * ========================================================= */
 define('HDB_DEBUG', true);      // <<< AUF false SETZEN IM PRODUKTIVBETRIEB
 define('HDB_DEBUG_XML', false); // true = SOAP XML anzeigen
-
-$HDB_DEBUG = (isset($_GET['debug']) && $_GET['debug'] == '1');
-
-$soapclient = new SoapClient($wsdl, array(
-    'trace' => 1,
-    'exceptions' => 1,
-    'cache_wsdl' => WSDL_CACHE_NONE
-));
-
-function hdb_debug($title, $response, $soapclient) {
-    global $HDB_DEBUG;
-    if (!$HDB_DEBUG) return;
-
-    echo "\n==================== ".$title." ====================\n";
-    if ($soapclient) {
-        echo "\n--- SOAP REQUEST ---\n";
-        echo htmlspecialchars($soapclient->__getLastRequest());
-        echo "\n--- SOAP RESPONSE ---\n";
-        echo htmlspecialchars($soapclient->__getLastResponse());
-    }
-    echo "\n--- PARSED RESPONSE ---\n";
-    print_r($response);
-    echo "\n====================================================\n";
-}
-
 /* =========================================================
  * BASIC SETTINGS
  * ========================================================= */
 ini_set('error_reporting', E_ALL & ~E_NOTICE);
 ini_set('display_errors', 1);
 header('Content-Type: text/plain; charset=utf-8');
+
+
+function dumpSoapExchange(string $label, SoapClient $soapclient, $params = null, $response = null): void {
+    echo "\n==================== $label ====================\n";
+
+    if ($params !== null) {
+        echo "\n--- PARAMS (PHP) ---\n";
+        var_export($params);
+        echo "\n";
+    }
+
+    if ($response !== null) {
+        echo "\n--- RESPONSE (PHP) ---\n";
+        var_export($response);
+        echo "\n";
+    }
+
+    echo "\n--- SOAP REQUEST (XML) ---\n";
+    echo htmlspecialchars($soapclient->__getLastRequest() ?: '');
+
+    echo "\n--- SOAP RESPONSE (XML) ---\n";
+    echo htmlspecialchars($soapclient->__getLastResponse() ?: '');
+
+    echo "\n================================================\n";
+}
 
 /* =========================================================
  * PARAMETER CHECK
@@ -178,7 +178,6 @@ SELECT SQL_CALC_FOUND_ROWS
     IFNULL(i_tierart.de_lang, i_tiere.art) AS art,
     i_tiere.art_id,
     IFNULL(i_tierrasse.de_lang, i_tiere.rasse) AS rasse,
-    i_tierrasse.HDB_id AS HDB_id,
     i_tiere.geschlecht_id,
     i_tiere.geburt,
     i_tiere.geburtsland,
@@ -1310,7 +1309,9 @@ $params->HalterEigentuemer = $halter;
 $response_time = microtime(true);
 
 try {
+    dumpSoapExchange('Erstmeldung BEFORE SEND', $soapclient, $params, null);
     $response = $soapclient->__soapCall('Erstmeldung', array($params));
+    dumpSoapExchange('Erstmeldung AFTER SEND', $soapclient, $params, $response);
     $response_time = microtime(true) - $response_time;
 } catch (SoapFault $e) {
     $response_time = microtime(true) - $response_time;
@@ -1477,4 +1478,3 @@ logfile($row['transponder'], "Erstmeldung (Status: ".$response->Status.")");
 flush();
 }
 mysql_free_result($result);
-
